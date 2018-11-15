@@ -1,11 +1,15 @@
-from flask import Flask, render_template, request, make_response
+from flask import Flask, render_template, request, make_response, redirect, jsonify
 from flask_sqlalchemy import SQLAlchemy
 import os
+import jwt
+from functools import wraps
+from werkzeug.security import generate_password_hash, check_password_hash
 
 app = Flask(__name__)
 
 basedir = os.path.abspath(os.path.dirname(__file__))
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(basedir, 'MainDatabase.db')
+app.config['SECRET_KEY'] = 'alel-berk'
 db = SQLAlchemy(app)
 
 
@@ -73,9 +77,45 @@ class Rate(db.Model):
         self.rate = rate
 
 
+def token_required(f):
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        token = None
+
+        if 'token' in request.cookies:
+            token = request.cookies.get('token')
+
+        if not token:
+            return make_response("Token is missing!",  401)
+
+        current_user = validate_token(token)
+
+        if current_user is None:
+            return make_response("Token is invalid", 401)
+
+        return f(current_user, *args, **kwargs)
+
+    return decorated
+
+
+def validate_token(token):
+    try:
+        data = jwt.decode(token, app.config['SECRET_KEY'])
+        current_user = Customer.query.filter_by(user_id=data['username'].first())
+        return current_user
+    except:
+        return None
+
+
 @app.route("/")
 def get_homePage():
-    return render_template("mainpage.html")
+    token = request.cookies.get('token')
+    if token is None:
+        return make_response(redirect("/login"))
+    elif validate_token(token) is None:
+        return make_response("Token is invalid", 401)
+    else:
+        return render_template("mainpage.html", username=validate_token(token))
 
 
 @app.route("/login", methods=["GET"])
@@ -98,9 +138,10 @@ def post_register():
     password = data['password']
 
     if not username or not email or not address or not password:
-        return make_response('Missing atribute', 401)
+        return make_response('Missing attribute', 401)
 
-    new_customer = Customer(username, gsm, email, address, password)
+    hashed_password = generate_password_hash(password, method="sha256")
+    new_customer = Customer(username, gsm, email, address, hashed_password)
 
     db.session.add(new_customer)
     db.session.commit()
@@ -113,6 +154,22 @@ def post_login():
     data = request.json
     username = data['username']
     password = data['password']
+
+    if not username or not password:
+        return make_response('Enter values please', 401)
+
+    user = Customer.query.filter_by(username=username).first()
+    if not user:
+        return make_response('Invalid user', 401)
+    if check_password_hash(user.password, password):
+        token = jwt.encode(
+            {'username': user.username},
+            app.config['SECRET_KEY']
+        )
+        out = jsonify(success=True)
+        out.set_cookie('token',token)
+        return out
+    return make_response('Password didn\'t match', 401)
 
 
 if __name__ == '__main__':
