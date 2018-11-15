@@ -1,0 +1,19 @@
+{% extends 'layout.html' %}
+
+{% block body%}
+<br><br>
+    {% for album in albums %}
+        <div class="card col-md-4 offset-md-4" style="width: 18rem;">
+            <img class="card-img-top" src="/{{album.album_name}}" alt="Card image cap">
+            <div class="card-body">
+                <h5 class="card-title">Card A</h5>
+                <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
+                <a href="/buy/{{album.album_name}}" class="btn btn-primary">Buy</a>
+                <a href="/like/{{album.album_name}}" class="btn btn-primary">Like</a>
+                <form id="form" name="form" method="post">
+                    <input type="text" placeholder="Put your comment here"><br>
+                </form>
+            </div>
+        </div>
+    {% endfor %}
+{% endblock %}
