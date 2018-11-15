@@ -19,11 +19,11 @@ ma = Marshmallow(app)
 
 
 class Customer(db.Model):
-    username = db.Column(db.String, primary_key=True)
-    gsm = db.Column(db.Integer)
-    email = db.Column(db.String)
-    address = db.Column(db.String)
-    password = db.Column(db.String)
+    username = db.Column(db.String(20), primary_key=True)
+    gsm = db.Column(db.CHAR(4))
+    email = db.Column(db.String(30), unique=True, nullable=False)
+    address = db.Column(db.String(40), nullable=False)
+    password = db.Column(db.String(20), nullable=False)
 
     def __init__(self, username, gsm, email, address, password):
         self.username = username
@@ -34,13 +34,13 @@ class Customer(db.Model):
 
 
 class Album(db.Model):
-    artist = db.Column(db.String(30))
+    artist = db.Column(db.String(30), nullable=False)
     album_name = db.Column(db.String(30), primary_key=True)
     year = db.Column(db.String(4))
-    cost = db.Column(db.Float)
-    genre = db.Column(db.String(4))
+    cost = db.Column(db.Float, nullable=False)
+    genre = db.Column(db.String(20))
     rating_avg = db.Column(db.String(4))
-    producer_name = db.Column(db.String(4), db.ForeignKey('producer.producer_name'))
+    producer_name = db.Column(db.String(30), db.ForeignKey('producer.producer_name'), nullable=False)
 
     def __init__(self, artist, album_name, year, cost, genre, producer_name):
         self.artist = artist
@@ -69,8 +69,8 @@ class Producer(db.Model):
 
 class Buy(db.Model):
     buy_id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String, db.ForeignKey('customer.username'))
-    album_name = db.Column(db.String(30), db.ForeignKey('album.album_name'))
+    username = db.Column(db.String, db.ForeignKey('customer.username'), nullable=False)
+    album_name = db.Column(db.String(30), db.ForeignKey('album.album_name'), nullable=False)
 
     def __init__(self, username, album_name):
         self.username = username
@@ -79,9 +79,9 @@ class Buy(db.Model):
 
 class Rate(db.Model):
     rate_id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String, db.ForeignKey('customer.username'))
-    album_name = db.Column(db.String(30), db.ForeignKey('album.album_name'))
-    comment = db.Column(db.String)
+    username = db.Column(db.String(20), db.ForeignKey('customer.username'), nullable=False)
+    album_name = db.Column(db.String(30), db.ForeignKey('album.album_name'), nullable=False)
+    comment = db.Column(db.String(100))
     rate = db.Column(db.Integer)
 
     def __init__(self, username, album_name, comment, rate):
