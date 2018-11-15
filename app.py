@@ -1,7 +1,9 @@
 from flask import Flask, render_template, request, make_response, redirect, jsonify
 from flask_sqlalchemy import SQLAlchemy
+from flask_marshmallow import Marshmallow
 import os
 import jwt
+import json
 from functools import wraps
 from werkzeug.security import generate_password_hash, check_password_hash
 
@@ -10,7 +12,10 @@ app = Flask(__name__)
 basedir = os.path.abspath(os.path.dirname(__file__))
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(basedir, 'MainDatabase.db')
 app.config['SECRET_KEY'] = 'alel-berk'
+app.config['ALBUMS_PHOTO'] = 'static/albums'
+
 db = SQLAlchemy(app)
+ma = Marshmallow(app)
 
 
 class Customer(db.Model):
@@ -44,6 +49,15 @@ class Album(db.Model):
         self.cost = cost
         self.genre = genre
         self.producer_name = producer_name
+
+
+class AlbumSchema(ma.Schema):
+    class Meta:
+        fields = ('artist', 'album_name', 'year', 'cost', 'rating_avg', 'producer_name')
+
+
+album_schema = AlbumSchema()
+albums_schema = AlbumSchema(many=True)
 
 
 class Producer(db.Model):
@@ -86,12 +100,12 @@ def token_required(f):
             token = request.cookies.get('token')
 
         if not token:
-            return make_response("Token is missing!",  401)
+            return make_response(redirect("/login"))
 
         current_user = validate_token(token)
 
         if current_user is None:
-            return make_response("Token is invalid", 401)
+            return jsonify({'message': 'Token is invalid!'}), 401
 
         return f(current_user, *args, **kwargs)
 
@@ -101,21 +115,33 @@ def token_required(f):
 def validate_token(token):
     try:
         data = jwt.decode(token, app.config['SECRET_KEY'])
-        current_user = Customer.query.filter_by(user_id=data['username'].first())
+        current_user = Customer.query.filter_by(username=data['username']).first()
         return current_user
-    except:
+    except Exception as e:
+        print("print")
+        print(str(e))
         return None
 
 
-@app.route("/")
-def get_homePage():
+@app.route('/', methods=["GET"])
+@token_required
+def get_page(id):
     token = request.cookies.get('token')
     if token is None:
         return make_response(redirect("/login"))
     elif validate_token(token) is None:
         return make_response("Token is invalid", 401)
     else:
-        return render_template("mainpage.html", username=validate_token(token))
+        return get_home_page()
+
+
+@app.route("/home")
+@token_required
+def get_home_page(id):
+    all_albums = Album.query.all()
+    dumped_albums = albums_schema.dumps(all_albums)
+    result_albums = json.loads(dumped_albums.data)
+    return render_template("homepage.html", albums=result_albums)
 
 
 @app.route("/login", methods=["GET"])
@@ -149,12 +175,13 @@ def post_register():
     return render_template("login.html")
 
 
-@app.route("users/signin", methods=["POST"])
+@app.route("/users/signin", methods=["POST"])
 def post_login():
     data = request.json
     username = data['username']
     password = data['password']
 
+    print(username + ", "+ password)
     if not username or not password:
         return make_response('Enter values please', 401)
 
@@ -167,7 +194,7 @@ def post_login():
             app.config['SECRET_KEY']
         )
         out = jsonify(success=True)
-        out.set_cookie('token',token)
+        out.set_cookie('token', token)
         return out
     return make_response('Password didn\'t match', 401)
 
