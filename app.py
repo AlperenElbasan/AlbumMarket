@@ -144,6 +144,9 @@ def get_page(id):
     else:
         return get_home_page()
 
+@app.route("/buypage")
+def get_buy_page():
+    return render_template("buypage.html")
 
 @app.route("/home")
 @token_required
