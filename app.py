@@ -6,6 +6,7 @@ import jwt
 import json
 from functools import wraps
 from werkzeug.security import generate_password_hash, check_password_hash
+import random
 
 app = Flask(__name__)
 
@@ -91,6 +92,15 @@ class Rate(db.Model):
         self.rate = rate
 
 
+class RateSchema(ma.Schema):
+    class Meta:
+        fields = ('rate_id', 'username', 'album_name', 'comment', 'rate')
+
+
+rate_schema = RateSchema()
+rates_schema = RateSchema(many=True)
+
+
 def token_required(f):
     @wraps(f)
     def decorated(*args, **kwargs):
@@ -141,7 +151,14 @@ def get_home_page(id):
     all_albums = Album.query.all()
     dumped_albums = albums_schema.dumps(all_albums)
     result_albums = json.loads(dumped_albums.data)
-    return render_template("homepage.html", albums=result_albums)
+
+    all_rates = Rate.query.all()
+    dumped_rates = rates_schema.dumps(all_rates)
+    result_rates = json.loads(dumped_rates.data)
+
+    user = validate_token(request.cookies.get('token'))
+
+    return render_template("homepage.html", albums=result_albums, rates=result_rates, user=user)
 
 
 @app.route("/login", methods=["GET"])
@@ -177,6 +194,7 @@ def post_register():
 
 @app.route("/users/signin", methods=["POST"])
 def post_login():
+    print("users")
     data = request.json
     username = data['username']
     password = data['password']
@@ -197,6 +215,44 @@ def post_login():
         out.set_cookie('token', token)
         return out
     return make_response('Password didn\'t match', 401)
+
+
+@app.route("/buy/<string:album_name>")
+def buy_album(album_name):
+    print("Buying")
+    print(album_name)
+
+    user = validate_token(request.cookies.get('token'))
+    print(user)
+    new_buy_transaction = Buy(user.username, str(album_name))
+
+    db.session.add(new_buy_transaction)
+    db.session.commit()
+
+    random_days = random.randint(1, 5)
+
+    return make_response("This item is bought. It will arrive in your house in " + str(random_days) + " days.", 401)
+
+
+@app.route("/like/<album_name>", methods=['POST'])
+def like_album():
+    return make_response("not yet.")
+
+
+@app.route("/rate/<string:album_name>", methods=['POST'])
+def rate_album(album_name):
+    user = validate_token(request.cookies.get('token'))
+
+    data = request.json
+    comment = data['comment']
+    rate = data['rate']
+
+    new_rate = Rate(user.username, album_name, comment, rate)
+
+    db.session.add(new_rate)
+    db.session.commit()
+
+    return get_home_page()
 
 
 if __name__ == '__main__':
