@@ -144,10 +144,6 @@ def get_page(id):
     else:
         return get_home_page()
 
-@app.route("/buypage")
-def get_buy_page():
-    return render_template("buypage.html")
-
 @app.route("/home")
 @token_required
 def get_home_page(id):
@@ -232,9 +228,9 @@ def buy_album(album_name):
     db.session.add(new_buy_transaction)
     db.session.commit()
 
-    random_days = random.randint(1, 5)
+    random_days = random.randint(2, 9)
 
-    return make_response("This item is bought. It will arrive in your house in " + str(random_days) + " days.", 401)
+    return render_template("buypage.html", random_days=random_days, album_name=album_name)
 
 
 @app.route("/like/<album_name>", methods=['POST'])

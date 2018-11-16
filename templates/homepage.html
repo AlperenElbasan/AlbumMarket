@@ -3,12 +3,11 @@
 {% block body%}
 <br><br>
     {% for album in albums %}
-        <div class="card col-md-4 offset-md-4" style="width: 22rem;">
+        <div class="card col-md-4 offset-md-4">
             <img class="card-img-top" src="static/albums/{{album.album_name}}.jpg" alt="Card image cap">
             <div class="card-body">
-                <h5 class="card-title" id="card_title">{{album.album_name}}</h5>
-                <p class="card-text">Legendary album</p>
-                <a href="/buy/{{album.album_name}}" method="POST" class="btn btn-primary">Buy</a><br><br>
+                <h5 class="card-title" id="card_title" align="center"> <b>{{album.artist}}</b>,  {{album.album_name}}</h5><hr>
+                <a href="/buy/{{album.album_name}}" method="POST" class="btn btn-primary" align="center" >Buy</a><br><hr>
                 <form id="form" name="form" method="post">
                     <input type="range" name="rate" min="1" max="5" step="1" list="tickmarks" required>
 
@@ -19,7 +18,7 @@
                       <option value="4">
                       <option value="5">
                     </datalist>
-
+                    <br>
                     <input type="text" name="comment" placeholder="Put your comment here" required><br><br>
                     <input class="btn btn-lg btn-primary" type="submit" name="submit" value="Make the rating">
                 </form>
