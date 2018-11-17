@@ -6,11 +6,11 @@
         <div class="card col-md-4 offset-md-4">
             <img class="card-img-top" src="static/albums/{{album.album_name}}.jpg" alt="Card image cap">
             <div class="card-body">
-                <h5 class="card-title" id="card_title" align="center"> <b>{{album.artist}}</b>,  {{album.album_name}}</h5><hr>
-                <a href="/buy/{{album.album_name}}" method="POST" class="btn btn-primary" align="center" >Buy</a><br><hr>
+                <h5 class="card-title" id="card_title" align="center" value="{{album.album_name}}"> <b>{{album.artist}}</b>,  {{album.album_name}}</h5><hr>
+                <a href="/buy/{{album.album_name}}" method="post" class="btn btn-primary" align="center" >Buy</a><br><hr>
                 <form id="form" name="form" method="post">
                     <input type="range" name="rate" min="1" max="5" step="1" list="tickmarks" required>
-
+                    <input class="album_name" type="hidden" name="album_name" id="album_name" value="{{album.album_name}}">
                     <datalist id="tickmarks">
                       <option value="1">
                       <option value="2">
@@ -22,8 +22,9 @@
                     <input type="text" name="comment" placeholder="Put your comment here" required><br><br>
                     <input class="btn btn-lg btn-primary" type="submit" name="submit" value="Make the rating">
                 </form>
+                <hr>
                 {% for rate in rates %}
-                    {% if rate.username == username %}
+                    {% if rate.album_name == album.album_name %}
                         <p class="card-text"><b style="color:light-blue">{{rate.username}}:</b> {{rate.comment}}</p>
                     {% endif %}
                 {% endfor %}
@@ -46,10 +47,16 @@
           $("#form").on('submit', function(e){
             e.preventDefault();
 
-            val = document.getElementById("card_title").value();
-            console.log(val);
+
+            console.log("Submitted.");
+            console.log(this);
+            element = $(this).find(".album_name");
+            console.log(element);
+            val = element.attr("value");
 
             linkURL = '../rate/' + val;
+            console.log(linkURL);
+
             $.ajax({
                 url: linkURL, // url where to submit the request
                 type : "POST", // type of action POST || GET

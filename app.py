@@ -218,11 +218,8 @@ def post_login():
 
 @app.route("/buy/<string:album_name>")
 def buy_album(album_name):
-    print("Buying")
-    print(album_name)
 
     user = validate_token(request.cookies.get('token'))
-    print(user)
     new_buy_transaction = Buy(user.username, str(album_name))
 
     db.session.add(new_buy_transaction)
@@ -240,6 +237,7 @@ def like_album():
 
 @app.route("/rate/<string:album_name>", methods=['POST'])
 def rate_album(album_name):
+    print("rating")
     user = validate_token(request.cookies.get('token'))
 
     data = request.json
@@ -247,7 +245,6 @@ def rate_album(album_name):
     rate = data['rate']
 
     new_rate = Rate(user.username, album_name, comment, rate)
-
     db.session.add(new_rate)
     db.session.commit()
 
