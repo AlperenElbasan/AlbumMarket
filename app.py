@@ -144,6 +144,7 @@ def get_page(id):
     else:
         return get_home_page()
 
+
 @app.route("/home")
 @token_required
 def get_home_page(id):
@@ -152,12 +153,11 @@ def get_home_page(id):
     result_albums = json.loads(dumped_albums.data)
 
     all_rates = Rate.query.all()
-    dumped_rates = rates_schema.dumps(all_rates)
-    result_rates = json.loads(dumped_rates.data)
 
-    user = validate_token(request.cookies.get('token'))
+    for album in all_albums:
+        album.rating_avg = get_rate_avg(album, all_rates)
 
-    return render_template("homepage.html", albums=result_albums, rates=result_rates, user=user)
+    return render_template("homepage.html", albums=result_albums)
 
 
 @app.route("/login", methods=["GET"])
@@ -236,7 +236,8 @@ def like_album():
 
 
 @app.route("/rate/<string:album_name>", methods=['POST'])
-def rate_album(album_name):
+@token_required
+def rate_album(id, album_name):
     print("rating")
     user = validate_token(request.cookies.get('token'))
 
@@ -244,11 +245,55 @@ def rate_album(album_name):
     comment = data['comment']
     rate = data['rate']
 
+    all_rates = Rate.query.all()
+
+    for search_rate in all_rates:
+        if album_name == search_rate.album_name:
+            print(search_rate.comment + ", " + album_name)
+            if user.username == search_rate.username:
+                print("IF:" + search_rate.comment)
+                db.session.delete(search_rate)
+                break
+
     new_rate = Rate(user.username, album_name, comment, rate)
+
     db.session.add(new_rate)
     db.session.commit()
 
     return get_home_page()
+
+
+@app.route("/album/<string:album_name>", methods=['GET'])
+@token_required
+def comment_album(id, album_name):
+    user = validate_token(request.cookies.get('token'))
+
+    album = Album.query.filter_by(album_name=album_name).first()
+
+    all_rates = Rate.query.all()
+    dumped_rates = rates_schema.dumps(all_rates)
+    result_rates = json.loads(dumped_rates.data)
+
+    album.rating_avg = get_rate_avg(album, all_rates)
+
+    return render_template("album.html", album=album, username=user.username, rates=result_rates)
+
+
+def get_rate_avg(album, all_rates):
+
+    rate_count = 0
+    rate_sum = 0
+    for rate in all_rates:
+        if rate.album_name == album.album_name:
+            rate_count += 1
+            rate_sum += rate.rate
+
+    if rate_count > 0:
+        rate_avg = rate_sum / rate_count
+    else:
+        rate_avg = 0
+
+    return str(round(rate_avg, 2))
 
 
 if __name__ == '__main__':
