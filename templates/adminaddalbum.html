@@ -1,0 +1,21 @@
+{% extends 'layout.html' %}
+
+{% block body%}
+<br><br>
+<div class="card col-md-4 offset-md-4">
+    <form id="form" name="form" method="post">
+        <input type="text" name="artist" placeholder="Enter Artist Here" required><br><br>
+        <input type="text" name="album_name" placeholder="Enter Album Name Here" required><br><br>
+        <input type="text" name="year" placeholder="Enter Year Here" required><br><br>
+        <input type="number" name="cost" placeholder="Enter Cost Here" required><br><br>
+        <input type="text" name="genre" placeholder="Enter Genre Here" required><br><br>
+        <input type="text" name="producer_name" placeholder="Enter Producer Here" required><br><br>
+        <input type="file" accept=".png, .jpg, .jpeg" /><br><hr><br>
+        <input class="btn btn-lg btn-primary" type="submit" name="submit" value="Add the Album">
+
+    </form>
+</div>
+<script></script>
+
+
+{% endblock %}
