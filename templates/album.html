@@ -5,7 +5,16 @@
         <div class="card col-md-4 offset-md-4">
             <img class="card-img-top" src="../static/albums/{{album.album_name}}.jpg" alt="Card image cap">
             <div class="card-body">
-                <h5 class="card-title" id="card_title" align="center" value="{{album.album_name}}"> <b>{{album.artist}}</b>,  {{album.album_name}}</h5><hr>
+                <h5 class="card-title" id="card_title" align="center" value="{{album.album_name}}"> <b>{{album.artist}}</b> ,  {{album.album_name}}</h5><hr>
+                <hr>
+                <b>Year:</b> {{album.year}}
+                <hr>
+                <b>Cost:</b> {{album.cost}}
+                <hr>
+                <b>Genre:</b> {{album.genre}}
+                <hr>
+                <b>Producer:</b> {{album.producer_name}}
+                <hr>
                 <a href="/buy/{{album.album_name}}" method="post" class="btn btn-primary"  >Buy</a><br><hr>
                 <hr>
 
