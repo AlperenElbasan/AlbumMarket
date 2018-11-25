@@ -14,6 +14,8 @@ basedir = os.path.abspath(os.path.dirname(__file__))
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(basedir, 'MainDatabase.db')
 app.config['SECRET_KEY'] = 'alel-berk'
 app.config['ALBUMS_PHOTO'] = 'static/albums'
+app.config['ADMIN_NAME'] = 'Admin'
+app.config['ADMIN_PASS'] = 'alperen'
 
 db = SQLAlchemy(app)
 ma = Marshmallow(app)
@@ -157,7 +159,12 @@ def get_home_page(id):
     for album in all_albums:
         album.rating_avg = get_rate_avg(album, all_rates)
 
-    return render_template("homepage.html", albums=result_albums)
+    user = validate_token(request.cookies.get('token'))
+
+    if user.username == app.config['ADMIN_NAME']:
+        return render_template("adminaddalbum.html")
+    else:
+        return render_template("homepage.html", albums=result_albums, )
 
 
 @app.route("/login", methods=["GET"])
@@ -277,6 +284,30 @@ def comment_album(id, album_name):
     album.rating_avg = get_rate_avg(album, all_rates)
 
     return render_template("album.html", album=album, username=user.username, rates=result_rates)
+
+
+@app.route('/addalbum/', methods=['POST'])
+@token_required
+def add_album(id):
+    user = validate_token(request.cookies.get('token'))
+    if user.username != app.config['ADMIN_NAME']:
+        return
+
+    data = request.json
+
+    artist = data['artist']
+    album_name = data['album_name']
+    year = data['year']
+    cost = data['cost']
+    genre = data['genre']
+    producer_name = data['producer_name']
+
+    album = Album(artist, album_name, year, cost, genre, producer_name)
+
+    db.session.add(album)
+    db.session.commit()
+
+    return render_template("albumadded.html")
 
 
 def get_rate_avg(album, all_rates):

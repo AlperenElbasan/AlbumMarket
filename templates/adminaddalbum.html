@@ -2,6 +2,7 @@
 
 {% block body%}
 <br><br>
+
 <div class="card col-md-4 offset-md-4">
     <form id="form" name="form" method="post">
         <input type="text" name="artist" placeholder="Enter Artist Here" required><br><br>
@@ -10,12 +11,41 @@
         <input type="number" name="cost" placeholder="Enter Cost Here" required><br><br>
         <input type="text" name="genre" placeholder="Enter Genre Here" required><br><br>
         <input type="text" name="producer_name" placeholder="Enter Producer Here" required><br><br>
-        <input type="file" accept=".png, .jpg, .jpeg" /><br><hr><br>
+        <input type="file" accept=".jpg" /><br><hr><br>
         <input class="btn btn-lg btn-primary" type="submit" name="submit" value="Add the Album">
-
     </form>
 </div>
-<script></script>
+
+<script>
+
+    function objectifyForm(form) {//serialize data function
+        var data = {};
+        var dataArray = form.serializeArray();
+        for(var i=0;i<dataArray.length;i++){
+          data[dataArray[i].name] = dataArray[i].value;
+        }
+        return JSON.stringify(data);
+      }
+      $(document).ready(function(){
+          $("#form").on('submit', function(e){
+            e.preventDefault();
+            $.ajax({
+                url: '../addalbum/', // url where to submit the request
+                type : "POST", // type of action POST || GET
+                dataType : 'json', // data type
+                contentType: 'application/json',
+                data : objectifyForm($("#form")), // post data || get data
+                success : function(result) {
+                    window.location.assign("/");
+                },
+                error: function(xhr, resp, text) {
+                    alert("Add album failed.");
+                }
+            })
+          });
+      });
+
+</script>
 
 
 {% endblock %}

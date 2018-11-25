@@ -1,0 +1,12 @@
+{% extends 'layout.html' %}
+{% block body %}
+<div class="card border-success  col-md-4 offset-md-4">
+  <div class="card-header bg-transparent border-success" style="color:green">Successful transaction</div>
+  <div class="card-body text-success">
+    <h5 class="card-title">Congratulations, you have added the album, <br>"{{album_name}}"</h5>
+  </div>
+  <div class="card-footer bg-transparent border-success">
+    <a class="btn btn-success" href="/">Main Page</a>
+  </div>
+</div>
+{% endblock %}
