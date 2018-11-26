@@ -162,9 +162,9 @@ def get_home_page(id):
     user = validate_token(request.cookies.get('token'))
 
     if user.username == app.config['ADMIN_NAME']:
-        return render_template("adminaddalbum.html")
+        return render_template("adminaddalbum.html", albums=result_albums)
     else:
-        return render_template("homepage.html", albums=result_albums, )
+        return render_template("homepage.html", albums=result_albums)
 
 
 @app.route("/login", methods=["GET"])
@@ -308,6 +308,21 @@ def add_album(id):
     db.session.commit()
 
     return render_template("albumadded.html")
+
+
+@app.route('/deletealbum/<string:albumname>', methods=['GET'])
+@token_required
+def delete_album(id,albumname):
+
+    print(albumname)
+    user = validate_token(request.cookies.get('token'))
+    if user.username != app.config['ADMIN_NAME']:
+        return
+
+    db.session.delete(Album.query.filter_by(album_name=albumname).first())
+    db.session.commit()
+
+    return get_home_page()
 
 
 def get_rate_avg(album, all_rates):

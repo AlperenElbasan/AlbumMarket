@@ -16,6 +16,19 @@
     </form>
 </div>
 
+<br><br>
+    {% for album in albums %}
+        <div class="card col-md-4 offset-md-4">
+            <img class="card-img-top" src="../static/albums/{{album.album_name}}.jpg" alt="Card image cap">
+            <div class="card-body">
+                <h5 class="card-title" id="card_title" align="center" value="{{album.album_name}}"> <b>{{album.artist}}</b>,  {{album.album_name}}</h5><hr>
+                <a href="/album/{{album.album_name}}" method="post" class="btn btn-primary" align="center" >To the Album Page</a><br><hr>
+                <a href="/deletealbum/{{album.album_name}}" method="post" class = "btn btn-secondary" align="right">Delete the album</a>
+            </div>
+        </div>
+        <br><hr><br>
+    {% endfor %}
+
 <script>
 
     function objectifyForm(form) {//serialize data function
@@ -38,9 +51,6 @@
                 success : function(result) {
                     window.location.assign("/");
                 },
-                error: function(xhr, resp, text) {
-                    alert("Add album failed.");
-                }
             })
           });
       });
