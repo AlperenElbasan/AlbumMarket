@@ -270,6 +270,18 @@ def rate_album(id, album_name):
     return get_home_page()
 
 
+@app.route("/search_album/<string:album_name>", methods=['GET'])
+@token_required
+def search_album(id, album_name):
+
+    album = Album.query.filter_by(album_name=album_name).first()
+
+    if album is None:
+        return get_home_page()
+    else:
+        return render_template("album.html", album=album)
+
+
 @app.route("/album/<string:album_name>", methods=['GET'])
 @token_required
 def comment_album(id, album_name):
