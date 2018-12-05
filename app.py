@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, make_response, redirect, jsonify
+from flask import Flask, render_template, request, make_response, redirect, jsonify, flash, url_for
 from flask_sqlalchemy import SQLAlchemy
 from flask_marshmallow import Marshmallow
 import os
@@ -7,6 +7,7 @@ import json
 from functools import wraps
 from werkzeug.security import generate_password_hash, check_password_hash
 import random
+import time
 
 app = Flask(__name__)
 
@@ -276,8 +277,12 @@ def search_album(id, album_name):
 
     album = Album.query.filter_by(album_name=album_name).first()
 
+    message = "No such album is found. Redirected to home page."
+
     if album is None:
-        return get_home_page()
+        flash(message)
+        print(message)
+        return redirect(url_for('get_home_page'))
     else:
         return render_template("album.html", album=album)
 

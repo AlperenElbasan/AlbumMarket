@@ -11,8 +11,19 @@
       <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
       <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
 
-    {% include 'includes/navbar.html'%}
 
+    {% include 'includes/navbar.html'%}
+    {% with messages = get_flashed_messages() %}
+      {% if messages %}
+        {% for message in messages %}
+        <div class="card col-md-4 offset-md-4 text-white bg-info">
+            <div class="card-body">
+                <h5 class="card-title">{{ message }}</h5>
+            </div>
+        </div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
     {% block body%}{% endblock %}
 
 
