@@ -16,6 +16,8 @@
     {% with messages = get_flashed_messages() %}
       {% if messages %}
         {% for message in messages %}
+        <br>
+        <br>
         <div class="card col-md-4 offset-md-4 text-white bg-info">
             <div class="card-body">
                 <h5 class="card-title">{{ message }}</h5>
