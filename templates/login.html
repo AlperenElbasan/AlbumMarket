@@ -20,17 +20,40 @@
 
     <div class="col-md-4 offset-md-4">
       <form class="form-signin" id="form" name="form" method="post">
-        <h1 class="h3 mb-3 font-weight-normal">Please sign in</h1>
+        <br>
         <label for="username" class="sr-only">Username</label>
         <input type="text" name="username" class="form-control" placeholder="Username" required autofocus>
         <label for="password" class="sr-only">Password</label>
         <input type="password" name="password" class="form-control" placeholder="Password" required>
+        <br>
         <input class="btn btn-lg btn-secondary btn-block" type="submit" name="submit" value="Sign In">
-        <a href="register" class="btn btn-secondary btn-lg btn-block active" role="button" aria-pressed="true">Not an user, sign up!</a>
+        <a href="register" class="btn btn-secondary btn-lg btn-block active" role="button" aria-pressed="true">Don't have an account? Sign up!</a>
       </form>
 
     </div>
+    <div class="carousel slide carousel-fade" data-ride="carousel" id="mycarousel" style="
+      z-index: -99;
+      position: absolute;
+      top: 0px;
+      left: 0px;
+    ">
 
+
+
+      <div id="carouselExampleSlidesOnly" class="carousel slide" data-ride="carousel">
+        <div class="carousel-inner">
+          <div class="carousel-item active">
+            <img class="d-block w-100" src="../static/background/metallicaconcert.jpg" alt="First slide">
+          </div>
+          <div class="carousel-item">
+            <img class="d-block w-100" src="../static/background/pinkfloydthewallconcert.jpg" alt="Second slide">
+          </div>
+          <div class="carousel-item">
+            <img class="d-block w-100" src="../static/background/ironmaidenconcert.jpg" alt="Third slide">
+          </div>
+        </div>
+      </div>
+    </div>
     <script>
       function objectifyForm(form) {//serialize data function
         var data = {};
